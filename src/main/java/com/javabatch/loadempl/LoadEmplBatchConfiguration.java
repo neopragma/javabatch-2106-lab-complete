@@ -99,7 +99,7 @@ public class LoadEmplBatchConfiguration {
 	
 	@Bean
 	@StepScope
-	public FlatFileItemWriter invalidEmployeeItemWriter(
+	public FlatFileItemWriter<Employee> invalidEmployeeItemWriter(
 			@Value("#{jobParameters['EMPLERR'] ?: 'data/emplerr'}") String invalidOutputFilePath) {
 		return new FlatFileItemWriterBuilder<Employee>()
 			.resource(new FileSystemResource(invalidOutputFilePath))
@@ -140,16 +140,5 @@ public class LoadEmplBatchConfiguration {
 			.stream(invalidEmployeeItemWriter(""))
 			.build();
 	}
-
-//	@Bean
-//	public Step loadEmplStep1(ItemWriter<Employee> validEmployeeItemWriter) throws Exception {
-//		return loadEmplStepBuilderFactory.get("step1")
-//			.<Employee, Employee> chunk(10)
-//			.reader(employeeReader())
-//			.writer(validEmployeeItemWriter())
-//			.faultTolerant()
-//			.skipPolicy(employeeSkipPolicy())
-//			.build();
-//	}
 	// end::jobstep[]
 }
