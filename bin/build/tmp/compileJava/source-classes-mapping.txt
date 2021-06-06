@@ -1,0 +1,11 @@
+com/example/batchprocessing/Person.java
+ com.example.batchprocessing.Person
+com/example/batchprocessing/PersonItemProcessor.java
+ com.example.batchprocessing.PersonItemProcessor
+com/example/batchprocessing/BatchProcessingApplication.java
+ com.example.batchprocessing.BatchProcessingApplication
+com/example/batchprocessing/BatchConfiguration.java
+ com.example.batchprocessing.BatchConfiguration
+ com.example.batchprocessing.BatchConfiguration$1
+com/example/batchprocessing/JobCompletionNotificationListener.java
+ com.example.batchprocessing.JobCompletionNotificationListener

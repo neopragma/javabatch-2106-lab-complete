@@ -1,0 +1,6 @@
+com/javabatch/person/BatchProcessingApplication.class
+com/javabatch/person/JobCompletionNotificationListener.class
+com/javabatch/person/Person.class
+com/javabatch/person/BatchConfiguration$1.class
+com/javabatch/person/PersonItemProcessor.class
+com/javabatch/person/BatchConfiguration.class
