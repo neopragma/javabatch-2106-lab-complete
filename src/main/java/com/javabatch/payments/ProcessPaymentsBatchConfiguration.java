@@ -1,7 +1,10 @@
 package com.javabatch.payments;
 
+<<<<<<< HEAD
 import javax.batch.api.Batchlet;
 
+=======
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -9,8 +12,11 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+<<<<<<< HEAD
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.batch.core.step.tasklet.Tasklet;
+=======
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
@@ -41,9 +47,13 @@ public class ProcessPaymentsBatchConfiguration {
 
 	// tag::readerwriterprocessor[]
 	
+<<<<<<< HEAD
 	//------------------------------------------------------------
 	// Step 1 - read data from external partner 1, filter records, edit in-stream, reformat to our internal format
 	//------------------------------------------------------------
+=======
+	// Step 1
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 	
 	@Bean
 	@StepScope
@@ -82,15 +92,25 @@ public class ProcessPaymentsBatchConfiguration {
 	}	
 	
 	@Bean
+<<<<<<< HEAD
 	public ItemProcessor<PaymentDataFromSource1, FormattedPaymentData> paymentDataFromSource1ItemProcessor() {
+=======
+	public ItemProcessor<PaymentDataFromSource1, FormattedPaymentDataFromSource1> paymentDataFromSource1ItemProcessor() {
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 		return new PaymentDataFromSource1ItemProcessor();
     }
 	
 	@Bean
 	@StepScope
+<<<<<<< HEAD
 	public FlatFileItemWriter<FormattedPaymentData> formattedPaymentDataFromSource1ItemWriter(
 			@Value("#{jobParameters['PMTFMT1'] ?: 'data/formatted-payment-data-from-source-1.txt'}") String formattedPaymentDataFromSource1Path) {
 		return new FlatFileItemWriterBuilder<FormattedPaymentData>()
+=======
+	public FlatFileItemWriter<FormattedPaymentDataFromSource1> formattedPaymentDataFromSource1ItemWriter(
+			@Value("#{jobParameters['PMTFMT1'] ?: 'data/formatted-payment-data-from-source-1.txt'}") String formattedPaymentDataFromSource1Path) {
+		return new FlatFileItemWriterBuilder<FormattedPaymentDataFromSource1>()
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 			.resource(new FileSystemResource(formattedPaymentDataFromSource1Path))
 			.lineAggregator(new FormattedPaymentDataFromSource1LineAggregator())
 			.encoding("UTF-8")
@@ -99,6 +119,7 @@ public class ProcessPaymentsBatchConfiguration {
 			.build();
 	}
 
+<<<<<<< HEAD
 	@Bean
 	public Step formatPaymentDataFromSource1Step(
 			FlatFileItemReader<PaymentDataFromSource1> paymentDataFromSource1ItemReader,
@@ -141,6 +162,10 @@ public class ProcessPaymentsBatchConfiguration {
 	//------------------------------------------------------------
 	// Step 3 - read input from external partner 2, reformat to our internal format
 	//------------------------------------------------------------
+=======
+	
+	// Step 2
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 	
 	@Bean
 	@StepScope
@@ -173,15 +198,25 @@ public class ProcessPaymentsBatchConfiguration {
 	}	
 	
 	@Bean
+<<<<<<< HEAD
 	public ItemProcessor<PaymentDataFromSource2, FormattedPaymentData> paymentDataFromSource2ItemProcessor() {
+=======
+	public ItemProcessor<PaymentDataFromSource2, FormattedPaymentDataFromSource2> paymentDataFromSource2ItemProcessor() {
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 		return new PaymentDataFromSource2ItemProcessor();
     }
 	
 	@Bean
 	@StepScope
+<<<<<<< HEAD
 	public FlatFileItemWriter<FormattedPaymentData> formattedPaymentDataFromSource2ItemWriter(
 			@Value("#{jobParameters['PMTFMT2'] ?: 'data/formatted-payment-data-from-source-2.txt'}") String formattedPaymentDataFromSource2Path) {
 		return new FlatFileItemWriterBuilder<FormattedPaymentData>()
+=======
+	public FlatFileItemWriter<FormattedPaymentDataFromSource2> formattedPaymentDataFromSource2ItemWriter(
+			@Value("#{jobParameters['PMTFMT2'] ?: 'data/formatted-payment-data-from-source-2.txt'}") String formattedPaymentDataFromSource2Path) {
+		return new FlatFileItemWriterBuilder<FormattedPaymentDataFromSource2>()
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 			.resource(new FileSystemResource(formattedPaymentDataFromSource2Path))
 			.lineAggregator(new FormattedPaymentDataFromSource2LineAggregator())
 			.encoding("UTF-8")
@@ -191,6 +226,7 @@ public class ProcessPaymentsBatchConfiguration {
 	}
 	// end::readerwriterprocessor[]
 
+<<<<<<< HEAD
 	@Bean
 	public Step formatPaymentDataFromSource2Step(
 			FlatFileItemReader<PaymentDataFromSource2> paymentDataFromSource2ItemReader,
@@ -199,11 +235,38 @@ public class ProcessPaymentsBatchConfiguration {
 			    throws Exception {
 		return processPaymentsStepBuilderFactory.get("formatPaymentDataFromSource2Step")
 			.<PaymentDataFromSource2, FormattedPaymentData> chunk(10)
+=======
+	// tag::jobstep[]
+
+	@Bean
+	public Step formatPaymentDataFromSource1Step(
+			FlatFileItemReader<PaymentDataFromSource1> paymentDataFromSource1ItemReader,
+			ItemProcessor<PaymentDataFromSource1, FormattedPaymentDataFromSource1> paymentDataFromSource1ItemProcessor,
+			FlatFileItemWriter<FormattedPaymentDataFromSource1> formattedPaymentDataFromSource1ItemWriter)
+			    throws Exception {
+		return processPaymentsStepBuilderFactory.get("formatPaymentDataFromSource1Step")
+			.<PaymentDataFromSource1, FormattedPaymentDataFromSource1> chunk(10)
+			.reader(paymentDataFromSource1ItemReader(""))
+			.processor(paymentDataFromSource1ItemProcessor)
+			.writer(formattedPaymentDataFromSource1ItemWriter(""))
+			.build();
+	}
+
+	@Bean
+	public Step formatPaymentDataFromSource2Step(
+			FlatFileItemReader<PaymentDataFromSource2> paymentDataFromSource2ItemReader,
+			ItemProcessor<PaymentDataFromSource2, FormattedPaymentDataFromSource2> paymentDataFromSource2ItemProcessor,
+			FlatFileItemWriter<FormattedPaymentDataFromSource2> formattedPaymentDataFromSource2ItemWriter)
+			    throws Exception {
+		return processPaymentsStepBuilderFactory.get("formatPaymentDataFromSource2Step")
+			.<PaymentDataFromSource2, FormattedPaymentDataFromSource2> chunk(10)
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 			.reader(paymentDataFromSource2ItemReader(""))
 			.processor(paymentDataFromSource2ItemProcessor)
 			.writer(formattedPaymentDataFromSource2ItemWriter(""))
 			.build();
 	}
+<<<<<<< HEAD
 
 	//------------------------------------------------------------
 	// Step 4 - sort the formatted input records from external partner 2
@@ -286,6 +349,14 @@ public class ProcessPaymentsBatchConfiguration {
 	@Bean
 	public Job processPaymentsJob(
 			ProcessPaymentsJobCompletionNotificationListener processPaymentsListener) throws Exception {
+=======
+	
+	@Bean
+	public Job processPaymentsJob(
+			ProcessPaymentsJobCompletionNotificationListener processPaymentsListener) throws Exception {
+//			Step formatPaymentDataFromSource1Step,
+//			Step formatPaymentDataFromSource2Step) throws Exception {
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 		return processPaymentsJobBuilderFactory.get("processPaymentsJob")
 			.incrementer(new RunIdIncrementer())
 			.listener(processPaymentsListener)
@@ -293,12 +364,16 @@ public class ProcessPaymentsBatchConfiguration {
 					paymentDataFromSource1ItemReader(""), 
 					paymentDataFromSource1ItemProcessor(), 
 					formattedPaymentDataFromSource1ItemWriter("")))
+<<<<<<< HEAD
 			.next(sortPaymentDataFromSource1Step(
 					sortPaymentDataFromSource1("","")))
+=======
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 			.next(formatPaymentDataFromSource2Step(
 					paymentDataFromSource2ItemReader(""), 
 					paymentDataFromSource2ItemProcessor(), 
 					formattedPaymentDataFromSource2ItemWriter("")))
+<<<<<<< HEAD
 			.next(sortPaymentDataFromSource2Step(
 					sortPaymentDataFromSource2("","")))
 			.next(mergePaymentDataStep(
@@ -307,4 +382,9 @@ public class ProcessPaymentsBatchConfiguration {
 					applyPaymentsTasklet("","","")))
 			.build();
 	}
+=======
+			.build();
+	}
+	// end::jobstep[]
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 }

@@ -7,10 +7,17 @@ import java.util.Calendar;
 import org.javamoney.moneta.Money;
 import org.springframework.batch.item.file.transform.LineAggregator;
 
+<<<<<<< HEAD
 public class FormattedPaymentDataFromSource2LineAggregator implements LineAggregator<FormattedPaymentData> {
 	
 	@Override
 	public String aggregate(FormattedPaymentData paymentDataIn) {
+=======
+public class FormattedPaymentDataFromSource2LineAggregator implements LineAggregator<FormattedPaymentDataFromSource2> {
+	
+	@Override
+	public String aggregate(FormattedPaymentDataFromSource2 paymentDataIn) {
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 		StringBuilder sb = new StringBuilder();
 		sb.append(fixedLength(paymentDataIn.getCustomerId(), 17));
 		sb.append(fixedLength(paymentDataIn.getInvoiceNumber(), 13));
@@ -32,6 +39,10 @@ public class FormattedPaymentDataFromSource2LineAggregator implements LineAggreg
 	}
 	
 	private String fixedLength(String value, int length) {
+<<<<<<< HEAD
 		return String.format("%1$" + length + "s", value).replace(' ','0').substring(0, length);	
+=======
+		return String.format("%1$-" + length + "s", value).substring(0, length);	
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
 	}
 }

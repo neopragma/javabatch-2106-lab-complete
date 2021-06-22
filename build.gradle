@@ -49,9 +49,13 @@ bootWar {
 }
 
 dependencies {
+<<<<<<< HEAD
     implementation 'com.h2database:h2:1.4.200'       // for the payments lab
     implementation 'org.javamoney:moneta:1.4.2'      // for the payments lab
     implementation 'com.fasterxml.util:java-merge-sort:1.0.2'   // for the payments lab
+=======
+    implementation 'org.javamoney:moneta:1.4.2'      // for the payments lab - remove for starter
+>>>>>>> 3c092ca829486fc8c423649a2c5279a490a5d578
     implementation 'org.mockito:mockito-core:3.10.0'
 
     implementation 'org.springframework.boot:org.springframework.boot.gradle.plugin:2.4.3'
