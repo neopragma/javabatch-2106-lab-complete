@@ -1,0 +1,3 @@
+sortfile script started
+input file is data/formatted-payment-data-from-source-1.txt
+output file is data/sorted-payment-data-from-source-1.txt

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+if test -f sortin; then
+    $(rm sortin)
+fi    
+while read y
+do
+    echo "$y ${y:0:4} ${y:8:4}" >> sortin
+done 
+$(sort -t' ' -k2 -k3 < sortin > sortoutraw)
+$(cut -d ' ' -f1 < sortoutraw > sortout)

@@ -1,0 +1,21 @@
+#!/bin/bash
+#----------------------------------------
+# Sort file for payments lab
+# This is hardcoded for payments lab input from partner #1 (not a general sort solution)
+#
+# $1 filename to sort
+# $2 filename for sorted output
+#----------------------------------------
+
+if test -f sortin; then
+    $(rm sortin)
+fi    
+inputfile="$1"
+outputfile="$2"
+
+while read line
+do
+    echo "${line} ${line:1:30} ${line:39:8}" >> sortin
+done < $inputfile
+$(sort -t' ' -k2 -k3 < sortin > sortoutraw)
+$(cut -d ' ' -f1 < sortoutraw > $outputfile)

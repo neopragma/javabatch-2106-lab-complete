@@ -1,0 +1,1 @@
+java -jar build/libs/JavaBatch-0.0.1.jar --spring.batch.job.names=processPaymentsJob

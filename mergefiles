@@ -1,0 +1,8 @@
+#!/bin/bash
+#----------------------------------------
+# Merge input files for payments lab
+#
+# $1 filenames to merge
+# $2 filename for merged output
+#----------------------------------------
+$(sort --merge --batch-size=2 --output=$2 $1)
