@@ -1,0 +1,213 @@
+Making sense of a COBOL record layout.
+
+When you are converting a COBOL program to Java, you need to preserve the meaning of the COBOL code 
+and related data structures and translate them into equivalent Java code and data structures.
+
+For the LOADEMPL sample job used in class, the COBOL source program would have code like this 
+to define the input file and associated record layout: 
+
+       IDENTIFICATION DIVISION.
+           . . .
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT EMPL-IN ASSIGN TO "EMPLIN"
+               ORGANIZATION SEQUENTIAL
+               ACCESS MODE SEQUENTIAL
+               RECORDING MODE F 
+               RECORD CONTAINS 97 CHARACTERS
+               BLOCK CONTAINS 0
+               FILE STATUS EMPL-IN-STATUS.
+           . . .
+
+       01  EMPLOYEE-REC.
+           COPY EMPLREC.
+
+From this source: https://www.ibm.com/docs/en/cobol-aix/5.1?topic=files-file-systems 
+
+"COBOL for AIX supports ... QSAM (queued sequential access method) file system.
+Lets COBOL programs access QSAM files that are transferred from the mainframe to AIX® using FTP."
+
+(Mainframers: IBM now uses the term "file system" where they used to say "access method".
+Both terms are still used. On other systems, the term "access method" is not used.)
+
+What you can learn from looking at this definition: 
+
+SELECT EMPL-IN ASSIGN TO "EMPLIN" 
+   
+  The "external name" of the file is "EMPLIN". This will become the key for a Java Batch Job Parameter
+  to identify the file to your ItemReader. The value for the Job Parameter will be the path to the file 
+  on your system. 
+  
+  <properties>
+        <property name="EMPLIN" value="#{jobParameters['EMPLIN']}?:'default/path/to/file/newhires';"/>  
+  </properties>
+  
+  The "internal name" of the file is "EMPL-IN". The COBOL program refers to this file by that name in
+  the PROCEDURE DIVISION.    
+   
+ORGANIZATION SEQUENTIAL
+ACCESS MODE SEQUENTIAL
+
+   If present, these keywords mean the file is "sequential". You have to read it from front to back. 
+
+RECORDING MODE F 
+
+   This means the file has fixed-length records. There are no delimiters and no newline characters.
+   You have to pull out the field values based on their offsets and lengths.
+   In Java, that means using substring().
+
+RECORD CONTAINS 97 CHARACTERS
+
+   This means each logical record in the file is 97 bytes long.
+
+BLOCK CONTAINS 0
+
+   This means the system will determine the block size of the file. Not relevant to Java Batch conversion.
+
+FILE STATUS EMPL-IN-STATUS 
+
+   Somewhere in the program there is a data item named "EMPL-IN-STATUS". The COBOL code will check the value 
+   of that field after each I/O operation to see if the operation was successful. Not directly relevant to 
+   Java Batch conversion except insofar as it helps you understand what's going on in the original program.
+              
+This part is the logical record layout. 
+
+       01  EMPLOYEE-REC.
+           COPY EMPLREC.
+
+The COBOL language supports including source code from other files prior to compilation. The COPY statement 
+causes the contents of another file to be included in the COBOL program at the point where the COPY is coded. 
+The other files are called "copybooks". 
+
+The copybook would have code like this:
+
+           05  EMPL-NAME               PIC X(80). 
+           05  EMPL-HIRE-DATE-YYYYMMDD PIC X(08).
+           05  EMPL-SSN.
+               10  FILLER              PIC X.
+                   88  TEST-SSN        VALUE 'T'.
+               10  FILLER              PIC X(08).    
+               
+The contents of the copybook will replace the COPY statement in the original program. 
+This is called "copybook expansion". To see what the program is doing, it's better to look at a copy
+of the source that has all the copybooks expanded. Otherwise you will be chasing down a lot of files.
+You can get that kind of listing from a compilation run. Ask your mainframe colleagues to help you.
+
+In this example, the expanded source code would be this:
+
+       01  EMPLOYEE-REC.
+           05  EMPL-NAME               PIC X(80). 
+           05  EMPL-HIRE-DATE-YYYYMMDD PIC X(08).
+           05  EMPL-SSN.
+               10  FILLER              PIC X.
+                   88  TEST-SSN        VALUE 'T'.
+               10  FILLER              PIC X(08).    
+  
+That represents the layout of a logical record from file "emplin".
+
+You have to convert this into something appropriate for Java code to process. It isn't meaningful to
+pass this around as a stream of bytes with no context or structure. 
+       
+This is the content of file "emplin". The example shows the offsets of the data relative to zero.
+                                                                                                    1
+          1         2         3         4         5         6         7         8         9         0
+01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+John Q. Smith                                                                   20170715741556868                                                  
+Bartholomew Taser Blancmange                                                    20191213666666666                                                  
+Spurious Pleonastic Extra                                                       20200826165187999                                                  
+Standard Test Number                                                            20180101987654321                                                  
+Wrongo Bongo                                                                    20160815000111111                                                  
+Company Test SSN Hack                                                           20190101T12345678                                                  
+Anna Karenina                                                                   18580715739123456                                                  
+Baby Huey                                                                       21360101733333333    
+
+
+
+
+Here is how the record layout in COBOL relates to the contents of the file.
+
+The combination of PIC or PICTURE and USAGE tells you the length of the field and its data type.
+
+This
+
+    05  EMPL-NAME PIC X(80). 
+    
+is the same as this
+
+    05  EMPL-NAME PICTURE IS X(80) USAGE IS DISPLAY.    
+
+The (80) means to repeat the X 80 times. So, PICTURE XXXXX is the same as PICTURE X(5).    
+
+For USAGE DISPLAY, each character in the PICTURE clause represents one byte.        
+    
+    05  EMPL-NAME PIC X(80).     <= This field starts at offset 0 and is 80 bytes long, padded with spaces. 
+
+start                                                               end
+|                                                                    |
+V         1         2         3         4         5         6        V
+0123456789012345678901234567890123456789012345678901234567890123456789
+John Q. Smith  
+
+The value is NOT a string, like this: 
+
+"John Q. Smith\x00"
+
+It is a fixed-length value 80 bytes long with no delimiter. 
+
+In this record layout, all the fields are PICTURE X, so the same rule applies for determining the offsets and lengths.
+
+    05  EMPL-HIRE-DATE-YYYYMMDD PIC X(08). <= This field starts immediately after EMPL-NAME, at offset 80. Length is 8.
+
+                                                                              start   end
+                                                                                |      |
+                                                                                V      V
+          1         2         3         4         5         6         7         8         9         0
+01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+                                                                                20170715                                                 
+                                                                                                                 
+
+"FILLER" defines bytes that aren't labeled; the program doesn't reference those bytes explicitly.
+
+COBOL data items can have a hierarchical structure. Higher-numbered items "belong" to the lower-numbered items that enclose them.
+
+So, the following means that EMPL-SSN comprises a 1-byte filler plus an 8-byte filler, giving a length of 9 bytes.
+
+    05  EMPL-SSN.
+        10  FILLER              PIC X.
+            88  TEST-SSN        VALUE 'T'.
+        10  FILLER              PIC X(08).    
+    
+                                                                                     start     end
+                                                                                       |        |
+                                                                                       V        V
+          1         2         3         4         5         6         7         8         9         0
+01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+                                                                                        741556868      
+                                                                                        
+The 88-level item can have the value TRUE in a COBOL program. It isn't exactly a boolean type, but it is similar. 
+This definition means when the first byte of the SSN is "T", the value of TEST-SSN is "TRUE". 
+
+
+
+
+Java Batch Chunk Step: ItemReader => ItemProcessor => ItemWriter 
+
+The framework will call your ItemReader this way:
+
+- calls open() once 
+- calls readItem() repeatedly until you return "null", signaling "end of data".
+- calls close() once
+- calls checkPointInfo() if the step is being restarted. Out of scope for this example.
+
+
+
+
+The ItemReader
+
+To convert the fixed-format record to Java, you have to pull out the fixed-length fields individually and populate a Java object with the values. 
+
+In JavaBatch, this is a responsibility of the ItemReader. 
+
+Java doesn't natively support fixed-length text values in this way. It uses zero-delimited strings.                                           
+                                              
